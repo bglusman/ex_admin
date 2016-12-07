@@ -806,7 +806,7 @@ defmodule ExAdmin.Form do
   def build_item(conn, %{type: :has_many, resource: _resource, name: field_name,
       opts: %{fun: fun}}, resource, model_name, errors) do
     Adminlog.debug "build_item 8: #{inspect field_name}"
-    field_field_name = "#{field_name}_attributes"
+    field_field_name = "#{field_name}"
     human_label = "#{humanize(field_name) |> Inflex.singularize}"
     new_record_name_var = new_record_name field_name
     div ".has_many.#{field_name}" do
@@ -853,7 +853,7 @@ defmodule ExAdmin.Form do
     Adminlog.debug "build_item 9: #{inspect name}"
     collection = if is_function(collection), do: collection.(conn, resource), else: collection
     errors = get_errors(errors, name)
-    name_ids = "#{Atom.to_string(name) |> Inflex.singularize}_ids"
+    name_ids = "#{Atom.to_string(name)}"
     assoc_ids = Enum.map(get_resource_field2(resource, name), &(Schema.get_id(&1)))
     name_str = "#{model_name}[#{name_ids}][]"
     required = get_required name, opts

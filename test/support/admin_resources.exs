@@ -63,6 +63,12 @@ defmodule TestExAdmin.ExAdmin.User do
         inputs :roles, as: :check_boxes, collection: TestExAdmin.Role.all
       end
 
+      inputs "Products" do
+        has_many user, :products, fn(n) ->
+          input n, :title
+          input n, :price
+        end
+      end
     end
     query do
       %{all: [preload: [:noids, :roles]]}
@@ -84,6 +90,7 @@ defmodule TestExAdmin.ExAdmin.Product do
 
       def do_after(conn, params, resource, :create) do
         user = Repo.all(User) |> hd
+        resource = resource |> Repo.preload(:user)
         resource = Product.changeset(resource, %{user_id: user.id})
         |> Repo.update!
         conn = Plug.Conn.assign(conn, :product, resource)

@@ -8,8 +8,7 @@ defmodule TestExAdmin.User do
     field :active, :boolean, default: true
     has_many :products, TestExAdmin.Product
     has_many :noids, TestExAdmin.Noid
-    has_many :uses_roles, TestExAdmin.UserRole
-    has_many :roles, through: [:uses_roles, :user]
+    many_to_many :roles, TestExAdmin.Role, join_through: TestExAdmin.UserRole
   end
 
   @required_fields ~w(email)
@@ -18,6 +17,9 @@ defmodule TestExAdmin.User do
   def changeset(model, params \\ %{}) do
     model
     |> cast(params, @required_fields, @optional_fields)
+    |> cast_assoc(:noids, required: false)
+    |> cast_assoc(:products, required: false)
+    |> cast_assoc(:roles, required: false)
   end
 end
 defmodule TestExAdmin.Role do
@@ -28,7 +30,7 @@ defmodule TestExAdmin.Role do
   schema "roles" do
     field :name, :string
     has_many :uses_roles, TestExAdmin.UserRole
-    has_many :roles, through: [:uses_roles, :role]
+    many_to_many :users, TestExAdmin.User, join_through: TestExAdmin.UserRole
   end
 
   @required_fields ~w(name)
@@ -80,6 +82,8 @@ defmodule TestExAdmin.Product do
   def changeset(model, params \\ %{}) do
     model
     |> cast(params, @required_fields, @optional_fields)
+    |> cast_assoc(:user, required: false)
+
   end
 end
 

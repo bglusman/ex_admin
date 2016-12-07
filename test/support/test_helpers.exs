@@ -40,4 +40,10 @@ defmodule TestExAdmin.TestHelpers do
     TestExAdmin.User.changeset(%TestExAdmin.User{}, changes)
     |> Repo.insert!()
   end
+
+  def insert_role(attr \\ %{}) do
+    changes = Dict.merge(%{ name: "role1" }, attr)
+    TestExAdmin.Role.changeset(%TestExAdmin.Role{}, changes)
+    |> Repo.insert!
+  end
 end

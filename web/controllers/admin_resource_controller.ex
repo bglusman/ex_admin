@@ -51,8 +51,7 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
     resource = conn.assigns.resource
 
-    changeset_fn = model.changeset_fn(defn, :update)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[defn.resource_name])
+    changeset = defn.resource_model.changeset(resource)
 
     conn = Plug.Conn.assign(conn, :ea_required, changeset.required)
     {conn, params, resource} = handle_after_filter(conn, :edit, defn, params, resource)
@@ -65,8 +64,7 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
     resource = conn.assigns.resource
 
-    changeset_fn = model.changeset_fn(defn, :create)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[defn.resource_name])
+    changeset = defn.resource_model.changeset(resource)
 
     conn = Plug.Conn.assign(conn, :ea_required, changeset.required)
     {conn, params, resource} = handle_after_filter(conn, :new, defn, params, resource)
@@ -79,13 +77,12 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
     resource = conn.assigns.resource
 
-    changeset_fn = model.changeset_fn(defn, :create)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[defn.resource_name])
+    changeset = defn.resource_model.changeset(resource, params[defn.resource_name])
 
     case ExAdmin.Repo.insert(changeset) do
       {:error, changeset} ->
         conn |> handle_changeset_error(defn, changeset, params)
-      resource ->
+      {:ok, resource} ->
         {conn, _, resource} = handle_after_filter(conn, :create, defn, params, resource)
         put_flash(conn, :notice, (gettext "%{model_name} was successfully created.", model_name: (base_name model) ))
         |> redirect(to: admin_resource_path(resource, :show))
@@ -96,13 +93,12 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
     resource = conn.assigns.resource
 
-    changeset_fn = model.changeset_fn(defn, :update)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[defn.resource_name])
+    changeset = defn.resource_model.changeset(resource, params[defn.resource_name])
 
     case ExAdmin.Repo.update(changeset) do
       {:error, changeset} ->
         conn |> handle_changeset_error(defn, changeset, params)
-      resource ->
+      {:ok, resource} ->
         {conn, _, resource} = handle_after_filter(conn, :update, defn, params, resource)
         put_flash(conn, :notice, "#{base_name model} " <> (gettext "was successfully updated."))
         |> redirect(to: admin_resource_path(resource, :show))
@@ -241,5 +237,4 @@ defmodule ExAdmin.AdminResourceController do
       %{conn | resp_headers: [{"content-type", content_type}|resp_headers]}
     end
   end
-
 end

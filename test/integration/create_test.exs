@@ -22,9 +22,9 @@ defmodule TestExAdmin.CreateTest do
     fill_field title_field, "Test Create"
     fill_field price_field, ".99"
     find_element(:css, "select[name*='product[user_id]']")
-    |> find_all_within_element(:css, "option")
-    |> Enum.find(fn(x) -> attribute_value(x, "value") == "#{user.id}" end)
-    |> click
+      |> find_all_within_element(:css, "option")
+      |> Enum.find(fn(x) -> attribute_value(x, "value") == "#{user.id}" end)
+      |> click
 
     click(find_element(:name, "commit"))
 
@@ -42,5 +42,39 @@ defmodule TestExAdmin.CreateTest do
     price_wrapper = find_element(:css, "#product_price_input")
     assert visible_text(title_wrapper) == "Title*\ncan't be blank"
     assert visible_text(price_wrapper) == "Price*\ncan't be blank"
+  end
+
+  @tag :integration
+  test "has many through realtionship form" do
+    role = insert_role
+    navigate_to admin_resource_path(User, :new)
+
+    name_field = find_element(:css, "#user_name")
+    email_field = find_element(:css, "#user_email")
+    role = find_element(:css, "input[name*='user[roles][#{role.id}]']")
+
+    products_wrapper = find_element(:css, ".products")
+    products_adder = find_all_within_element(products_wrapper,
+     :css, ".btn-primary")
+
+    click role
+    fill_field name_field, "Cory"
+    fill_field email_field, "test@example.com"
+
+    click List.first(products_adder)
+
+    product_fields = find_all_within_element(products_wrapper, :css, "input[type='text']")
+
+    fill_field(List.first(product_fields), "A product title")
+    fill_field(Enum.at(product_fields, 1), "13.00")
+
+    click(find_element(:name, "commit"))
+    take_screenshot
+    user = Repo.one(from x in User, order_by: [desc: x.id], limit: 1)
+      |> Repo.preload(:roles)
+      |> Repo.preload(:products)
+      |> IO.inspect
+    assert Enum.count(user.products) == 1
+    assert Enum.member?(user.roles, role)
   end
 end
