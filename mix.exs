@@ -53,7 +53,7 @@ defmodule ExAdmin.Mixfile do
       {:csvlixir, "~> 1.0.0"},
       {:exactor, "~> 2.2.0"},
       {:ex_doc, "~> 0.11", only: :dev},
-      {:earmark, "~> 0.1", only: :dev},
+      {:earmark, "~> 1.0", only: :dev},
       {:ex_queb, "~> 1.0"},
       {:excoveralls, "~> 0.5", only: :test},
       {:gettext, "~> 0.11"},
