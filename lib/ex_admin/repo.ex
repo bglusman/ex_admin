@@ -157,10 +157,10 @@ defmodule ExAdmin.Repo do
         is_list(val) and String.ends_with?(key_str, "ids") ->
           val = Enum.filter(val, &(&1 != ""))
           ids = Enum.map(val, &(String.to_integer(&1)))
-          [{String.replace(key_str, "_id", "") |> String.to_atom, ids} | acc]
+          [{String.replace(key_str, "_ids", "") |> Inflex.pluralize |> String.to_atom, ids} | acc]
         is_map(val) and String.ends_with?(key_str, "ids") ->
           ids = Map.keys(val) |> Enum.map(&(Atom.to_string(&1) |> String.to_integer))
-          [{String.replace(key_str, "_id", "") |> String.to_atom, ids} | acc]
+          [{String.replace(key_str, "_ids", "") |> Inflex.pluralize |> String.to_atom, ids} | acc]
         true ->
           acc
       end
