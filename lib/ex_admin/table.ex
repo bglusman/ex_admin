@@ -30,7 +30,11 @@ defmodule ExAdmin.Table do
             for field_name <- Map.get(schema, :rows, []) do
               build_field(resource, conn, field_name, fn
                 _contents, {:map, f_name} ->
-                  for {k,v} <- Map.get(resource, f_name) do
+                  data = case Map.get(resource, f_name) do
+                    nil -> get_schema(field_name)
+                    value -> value
+                  end
+                  for {k,v} <- data do
                     tr do
                       value = ExAdmin.Render.to_string(v)
                       field_header "#{f_name} #{k}"
@@ -49,6 +53,9 @@ defmodule ExAdmin.Table do
       end
     end
   end
+
+  defp get_schema({_, %{schema: schema}}), do: schema
+  defp get_schema(_), do: []
 
   def field_header({_, %{label: label}}), do: th(humanize label)
   def field_header({{_, field_name}, opts}), do: field_header({field_name, opts})
