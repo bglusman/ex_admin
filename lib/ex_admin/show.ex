@@ -400,7 +400,7 @@ defmodule ExAdmin.Show do
         text """
         $(document).ready(function() {
           ExAdmin.association_filler_opts.ajax.url = "#{associations_path}";
-          $(".association_filler").select2(ExAdmin.association_filler_opts);
+          $("form[name=select_#{opts[:assoc_name]}] .association_filler").select2(ExAdmin.association_filler_opts);
         });
         """
       end
