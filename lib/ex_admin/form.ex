@@ -651,9 +651,10 @@ defmodule ExAdmin.Form do
 
     schema = get_schema(item, field_name)
     data = Map.get(resource, field_name, model_name) || %{}
+    opts = item[:opts] |> Map.delete(:schema) |> Map.to_list
 
     for {field, type} <- schema do
-      build_input(conn, type, field, field_name, data, model_name)
+      build_input(conn, type, field, field_name, data, model_name, nil, nil, opts)
     end
     |> Enum.join("\n")
   end
@@ -914,7 +915,7 @@ defmodule ExAdmin.Form do
     schema
   end
 
-  def build_input(conn, type, field, field_name, data, model_name, errors \\ nil, index \\ nil) do
+  def build_input(conn, type, field, field_name, data, model_name, errors \\ nil, index \\ nil, opts \\ []) do
     field = to_string field
     error = if errors in [nil, [], false], do: "", else: ".has-error"
     {inx, id} = if is_nil(index) do
@@ -926,13 +927,15 @@ defmodule ExAdmin.Form do
     label = humanize field
     theme_module(conn, Form).build_map(id, label, index, error, fn class ->
       markup do
-        []
+        options = opts
         |> Keyword.put(:type, input_type(type))
         |> Keyword.put(:class, class)
         |> Keyword.put(:id, id)
         |> Keyword.put(:name, name)
-        |> Keyword.put(:value, data[field])
-        |> Xain.input
+        case type do
+          :text -> Xain.textarea(data[field], options)
+          _ ->Xain.input(options |> Keyword.put(:value, data[field]))
+        end
         build_errors(errors, nil)
       end
     end)
